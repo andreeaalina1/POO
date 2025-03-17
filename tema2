@@ -1,0 +1,202 @@
+1.afis stud cu cea mai mare medie 
+2.media mediilor 
+3.sortarea mediilor stud folosind met bulelor 
+
+
+1.
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Student {
+private:
+    string nume;
+    int varsta;
+    float medie;
+
+public:
+    
+    Student(string nume_student, int varsta_student, float medie_student) {
+        nume = nume_student;
+        varsta = varsta_student;
+        medie = medie_student;
+        cout << "Constructorul a fost apelat pentru: " << nume << endl;
+    }
+
+    
+    ~Student() {
+        cout << "Destructor apelat pentru: " << nume << endl;
+    }
+
+    
+    void afisare_info() {
+        cout << "Nume: " << nume << ", Varsta: " << varsta << ", Medie: " << medie << endl;
+    }
+
+    
+    friend int main();
+};
+
+int main() {
+    int n;
+    cout << "Numar studenti: ";
+    cin >> n;
+
+    
+    Student** studenti = new Student*[n];
+
+    
+    for (int i = 0; i < n; i++) {
+        string nume;
+        int varsta;
+        float medie;
+        
+        cout << "Nume student " << i + 1 << ": ";
+        cin >> nume;
+        cout << "Varsta student " << i + 1 << ": ";
+        cin >> varsta;
+        cout << "Medie student " << i + 1 << ": ";
+        cin >> medie;
+
+        
+        studenti[i] = new Student(nume, varsta, medie);
+    }
+
+    
+    for (int i = 0; i < n; i++) {
+        studenti[i]->afisare_info();
+    }
+
+    Student* ceamaimaremed = studenti[0];  
+
+    for (int i = 1; i < n; i++) {  
+        if (studenti[i]->medie > ceamaimaremed->medie) {  
+            ceamaimaremed = studenti[i];
+        }
+    }
+
+    cout << "Studentul cu cea mai mare medie este: " << ceamaimaremed->nume 
+         << " cu media " << ceamaimaremed->medie << endl;
+
+    for (int i = 0; i < n; i++) {
+        delete studenti[i];  
+    }
+    delete[] studenti;  
+
+    return 0;
+}
+
+
+
+
+2. #include <iostream>
+#include <string>
+using namespace std;
+
+class Student {
+public:
+    string nume;
+    int varsta;
+    float medie;
+
+    Student(string nume_student, int varsta_student, float medie_student) {
+        nume = nume_student;
+        varsta = varsta_student;
+        medie = medie_student;
+    }
+};
+
+int main() {
+    int n;
+    cout << "Numar studenti: ";
+    cin >> n;
+
+    Student** studenti = new Student*[n];
+    float sumaMedii = 0.0;
+
+    for (int i = 0; i < n; i++) {
+        string nume;
+        int varsta;
+        float medie;
+
+        cin >> nume >> varsta >> medie;
+
+        studenti[i] = new Student(nume, varsta, medie);
+        sumaMedii += studenti[i]->medie;
+    }
+
+    float mediaMediilor = sumaMedii / n;
+    cout << mediaMediilor << endl;
+
+   
+    for (int i = 0; i < n; i++) {
+        delete studenti[i];
+    }
+    delete[] studenti;
+
+    return 0;
+}
+
+
+
+
+3. #include <iostream>
+#include <string>
+using namespace std;
+
+class Student {
+public:
+    string nume;
+    int varsta;
+    float medie;
+
+    Student(string nume_student, int varsta_student, float medie_student) {
+        nume = nume_student;
+        varsta = varsta_student;
+        medie = medie_student;
+    }
+};
+
+void metbule(Student** studenti, int n) {
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (studenti[j]->medie > studenti[j + 1]->medie) { 
+                swap(studenti[j], studenti[j + 1]);
+            }
+        }
+    }
+}
+
+int main() {
+    int n;
+    cout << "Numar studenti: ";
+    cin >> n;
+
+    Student** studenti = new Student*[n];
+
+    for (int i = 0; i < n; i++) {
+        string nume;
+        int varsta;
+        float medie;
+
+        cin >> nume >> varsta >> medie;
+
+        studenti[i] = new Student(nume, varsta, medie);
+    }
+
+    metbule(studenti, n);
+
+    cout << "Mediile sortate: ";
+    for (int i = 0; i < n; i++) {
+        cout << studenti[i]->medie << " ";
+    }
+    cout << endl;
+
+    for (int i = 0; i < n; i++) {
+        delete studenti[i];
+    }
+    delete[] studenti;
+
+    return 0;
+}
+
