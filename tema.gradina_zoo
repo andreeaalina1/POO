@@ -1,0 +1,51 @@
+#include <iostream>
+using namespace std;
+
+class animal {
+public:
+    string nume, specie, dieta, habitat;
+    int varsta;
+
+    animal(string n = "", string s = "", int v = 0, string d = "", string h = "") 
+        : nume(n), specie(s), varsta(v), dieta(d), habitat(h) {}
+
+    void afiseazaInfo() {
+        cout << nume << " | " << specie << " | " << varsta << " ani | " 
+             << dieta << " | " << habitat << endl;
+    }
+};
+
+class gradinazoo {
+private:
+    animal animale[10];
+    int nranimale = 0;
+
+public:
+    void adauganimal(animal a) {
+        if (nranimale < 10) {
+            animale[nranimale] = a;
+            nranimale++;
+        } else {
+            cout << "gradina zoo este plină!";
+        }
+    }
+
+    void afiseazaanimale() {
+        for (int i = 0; i < nranimale; i++) {
+            animale[i].afiseazaInfo();
+        }
+    }
+};
+
+int main() {
+    gradinazoo zoo;
+
+    zoo.adauganimal(animal("jack", "tigru", 5, "carne", "jungla"));
+    zoo.adauganimal(animal("lucky", "girafa", 3, "iarba", "savana"));
+    zoo.adauganimal(animal("teodor", "elefant", 10, "fructe", "savana"));
+
+
+    zoo.afiseazaanimale();
+
+    return 0;
+}
