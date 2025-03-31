@@ -1,0 +1,196 @@
+1. ce am fct la lab in sapt 6
+2. tema
+
+
+
+1.#include <iostream>
+#include <string>
+using namespace std;
+
+class persoana {
+protected:
+    string nume;
+    int varsta;
+
+public:
+    persoana(string nume, int varsta) {
+        this->nume = nume;
+        this->varsta = varsta;
+    }
+
+    void afisinfo() const {
+        cout << "nume: " << nume << " varsta: " << varsta << endl;
+    }
+
+    string getnume() const {
+        return nume;
+    }
+
+    int getvarsta() const {
+        return varsta;
+    }
+};
+
+class student : public persoana {
+private:
+    float medie;
+    friend class admin;
+
+public:
+    student(string nume, int varsta, float medie) : persoana(nume, varsta) {
+        this->medie = medie;
+    }
+
+    void afisinfo() const {
+        cout << "nume: " << nume << " varsta: " << varsta << " medie: " << medie << endl;
+    }
+
+    // Operatorul de comparare a mediilor (>) 
+    bool operator>(const student& celalalt_obiect) const {
+        return this->medie > celalalt_obiect.medie;
+    }
+
+    // Operatorul de comparare a mediilor (<)
+    bool operator<(const student& celalalt_obiect) const {
+        return this->medie < celalalt_obiect.medie;
+    }
+};
+
+class admin {
+public:
+    void modifmedie(student& s, float medienoua) {
+        cout << "modif media pt " << s.nume << " de la " << s.medie << " la " << medienoua << endl;
+        s.medie = medienoua;
+    }
+
+    void afisdetaliistud(const student& s) const {
+        cout << "ADMIN -> STUDENT: " << s.nume << ", varsta: " << s.varsta << ", medie: " << s.medie << endl;
+    }
+};
+
+int main() {
+    student s1("mihai", 20, 7.5);
+    student s2("victor", 21, 10);
+
+    s1.afisinfo();
+    s2.afisinfo();
+
+    admin admin;
+    admin.modifmedie(s2, 5);
+    admin.afisdetaliistud(s2);
+
+    if (s1 > s2) {
+        cout << s1.getnume() << " are media mai mare decat " << s2.getnume() << endl;
+    } else {
+        cout << s2.getnume() << " are media mai mare decat " << s1.getnume() << endl;
+    }
+
+    if (s1 < s2) {
+        cout << s1.getnume() << " are media mai mica decat " << s2.getnume() << endl;
+    } else {
+        cout << s2.getnume() << " are media mai mica decat " << s1.getnume() << endl;
+    }
+
+    return 0;
+}
+
+
+
+2. #include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+
+class Masina {
+protected:
+    string nrInmatriculare;
+    int oraInt, minutInt;
+    int oraIes, minutIes;
+public:
+    Masina(string nr, int oraIn, int minIn) : nrInmatriculare(nr), oraInt(oraIn), minutInt(minIn), oraIes(0), minutIes(0) {}
+    void setIesire(int oraOut, int minOut) {
+        oraIes = oraOut;
+        minutIes = minOut;
+    }
+    int calcDurata() const {
+        return (oraIes * 60 + minutIes) - (oraInt * 60 + minutInt);
+    }
+    string getNrInmatriculare() const { return nrInmatriculare; }
+    void afiseazaInformatii() const {
+        cout << "Masina " << nrInmatriculare << " a intrat la " << oraInt << ":" << minutInt;
+        if (oraIes != 0)
+            cout << " si a iesit la " << oraIes << ":" << minutIes;
+        cout << "\n";
+    }
+};
+
+class LocParcare {
+    bool ocupat;
+    Masina* masina;
+public:
+    LocParcare() : ocupat(false), masina(nullptr) {}
+    bool esteOcupat() const { return ocupat; }
+    void ocupaLoc(Masina* m) {
+        ocupat = true;
+        masina = m;
+    }
+    void elibereazaLoc() {
+        ocupat = false;
+        delete masina;
+        masina = nullptr;
+    }
+    Masina* getMasina() const { return masina; }
+};
+
+class Parcare {
+    vector<LocParcare> locuri;
+    double tarifPeOra;
+public:
+    Parcare(int numarLocuri, double tarif) : locuri(numarLocuri), tarifPeOra(tarif) {}
+    bool intraMasina(string nr, int ora, int minut) {
+        for (auto &loc : locuri) {
+            if (!loc.esteOcupat()) {
+                loc.ocupaLoc(new Masina(nr, ora, minut));
+                return true;
+            }
+        }
+        return false;
+    }
+    double iesireMasina(string nr, int ora, int minut) {
+        for (auto &loc : locuri) {
+            if (loc.esteOcupat() && loc.getMasina()->getNrInmatriculare() == nr) {
+                loc.getMasina()->setIesire(ora, minut);
+                int durata = loc.getMasina()->calcDurata();
+                double cost = (durata / 60.0) * tarifPeOra;
+                loc.getMasina()->afiseazaInformatii();
+                loc.elibereazaLoc();
+                return cost;
+            }
+        }
+        return -1;
+    }
+    int locuriDisponibile() const {
+        int count = 0;
+        for (const auto &loc : locuri) {
+            if (!loc.esteOcupat()) count++;
+        }
+        return count;
+    }
+};
+
+int main() {
+    Parcare parcare(5, 10.0);
+    
+    parcare.intraMasina("B123ABC", 10, 30);
+    parcare.intraMasina("AG456XYZ", 11, 00);
+    
+    cout << "Locuri disponibile: " << parcare.locuriDisponibile() << "\n";
+    
+    double cost = parcare.iesireMasina("B123ABC", 12, 45);
+    if (cost != -1)
+        cout << "Costul parcarii: " << cost << " RON\n";
+    
+    cout << "Locuri disponibile: " << parcare.locuriDisponibile() << "\n";
+    
+    return 0;
+}
