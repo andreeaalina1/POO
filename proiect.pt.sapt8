@@ -1,0 +1,207 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Carte {
+protected:
+    string titlu;
+    string autor;
+    string gen;
+    int id;
+    static int contorID;
+public:
+    Carte(string t, string a, string g) : titlu(t), autor(a), gen(g) {
+        id = ++contorID;
+    }
+    virtual ~Carte() {}
+    string getTitlu() const { return titlu; }
+    string getAutor() const { return autor; }
+    string getGen() const { return gen; }
+    int getID() const { return id; }
+};
+int Carte::contorID = 0;
+
+class CarteDisponibila : public Carte {
+private:
+    int exemplareDisponibile;
+public:
+    CarteDisponibila(string t, string a, string g) : Carte(t, a, g), exemplareDisponibile(2) {} // 2 exemplare per carte
+    bool esteDisponibila() const { return exemplareDisponibile > 0; }
+    void imprumuta() { if (exemplareDisponibile > 0) exemplareDisponibile--; }
+    void returneaza() { exemplareDisponibile++; }
+    int getExemplareDisponibile() const { return exemplareDisponibile; }
+};
+
+struct Imprumut {
+    CarteDisponibila* carte;
+    string dataImprumut;
+    string dataReturnare;
+};
+
+class Cititor {
+private:
+    string nume;
+    Imprumut cartiImprumutate[10];
+    int nrCartiImprumutate;
+public:
+    Cititor(string n) : nume(n), nrCartiImprumutate(0) {}
+
+    bool imprumutaCarte(CarteDisponibila* carte, string dataImprumut, string dataReturnare) {
+        if (carte->esteDisponibila()) {
+            carte->imprumuta();
+            cartiImprumutate[nrCartiImprumutate].carte = carte;
+            cartiImprumutate[nrCartiImprumutate].dataImprumut = dataImprumut;
+            cartiImprumutate[nrCartiImprumutate].dataReturnare = dataReturnare;
+            nrCartiImprumutate++;
+            cout << "Cartea '" << carte->getTitlu() << "' a fost imprumutata de " << nume << ".\n";
+            return true;
+        } else {
+            cout << "Cartea '" << carte->getTitlu() << "' nu este disponibila. Este deja imprumutata.\n";
+            return false;
+        }
+    }
+
+    void afiseazaImprumuturi() const {
+        if (nrCartiImprumutate == 0) {
+            cout << "Cititorul " << nume << " nu a imprumutat nicio carte.\n";
+        } else {
+            cout << "Carti imprumutate de " << nume << ":\n";
+            for (int i = 0; i < nrCartiImprumutate; ++i) {
+                cout << "- " << cartiImprumutate[i].carte->getTitlu() << " (" << cartiImprumutate[i].carte->getAutor() << ")\n"
+                     << "  Împrumutată la data de " << cartiImprumutate[i].dataImprumut << " până la " << cartiImprumutate[i].dataReturnare << "\n";
+            }
+        }
+    }
+};
+
+class Biblioteca {
+private:
+    CarteDisponibila* carti[20];
+    int nrCarti;
+    string oraDeschidere;
+    string oraInchidere;
+public:
+    Biblioteca(string od, string oi) : oraDeschidere(od), oraInchidere(oi), nrCarti(0) {}
+
+    void adaugaCarte(CarteDisponibila* carte) {
+        if (nrCarti < 20) {
+            carti[nrCarti++] = carte;
+        }
+    }
+
+    void afiseazaCarti() const {
+        cout << "Cartile din biblioteca:\n";
+        for (int i = 0; i < nrCarti; ++i) {
+            cout << "- ID: " << carti[i]->getID() << " | " << carti[i]->getTitlu() << " de " << carti[i]->getAutor() << " (" << carti[i]->getGen() << ") | Exemplare disponibile: " << carti[i]->getExemplareDisponibile() << "\n";
+        }
+    }
+
+    void afiseazaProgram() const {
+        cout << "Biblioteca este deschisa de la " << oraDeschidere << " la " << oraInchidere << "\n";
+    }
+
+    CarteDisponibila* cautaCarte(int id) {
+        for (int i = 0; i < nrCarti; ++i) {
+            if (carti[i]->getID() == id) {
+                return carti[i];
+            }
+        }
+        return nullptr;
+    }
+
+    bool validareData(string data) {
+        int zi, luna, an;
+        if (sscanf(data.c_str(), "%d-%d-%d", &zi, &luna, &an) != 3) {
+            return false; // Format invalid
+        }
+        if (an != 2025 || luna < 1 || luna > 12 || zi < 1 || zi > 31) {
+            return false; // Anul nu este 2025 sau ziua/luna invalide
+        }
+        return true;
+    }
+};
+
+int main() {
+    Biblioteca biblioteca("08:00", "18:00");
+
+    // Adăugăm 10 cărți în bibliotecă
+    biblioteca.adaugaCarte(new CarteDisponibila("Ion", "Liviu Rebreanu", "Roman"));
+    biblioteca.adaugaCarte(new CarteDisponibila("Morometii", "Marin Preda", "Roman"));
+    biblioteca.adaugaCarte(new CarteDisponibila("Enigma Otiliei", "George Calinescu", "Roman"));
+    biblioteca.adaugaCarte(new CarteDisponibila("Maitreyi", "Mircea Eliade", "Roman"));
+    biblioteca.adaugaCarte(new CarteDisponibila("Baltagul", "Mihail Sadoveanu", "Roman"));
+    biblioteca.adaugaCarte(new CarteDisponibila("Padurea Spanzuratilor", "Liviu Rebreanu", "Roman"));
+    biblioteca.adaugaCarte(new CarteDisponibila("Cartea Nuntii", "Gheorghe Sion", "Roman"));
+    biblioteca.adaugaCarte(new CarteDisponibila("Delirul", "Liviu Rebreanu", "Roman"));
+    biblioteca.adaugaCarte(new CarteDisponibila("Timpul", "Iosif Sava", "Eseu"));
+    biblioteca.adaugaCarte(new CarteDisponibila("Jurnalul unui tanar", "Mircea Eliade", "Memorii"));
+
+    biblioteca.afiseazaProgram();
+    biblioteca.afiseazaCarti();
+
+    string nume;
+    char maiMultiCititori = 'd';
+    while (maiMultiCititori == 'd') {
+        cout << "\nIntroduceti numele unui cititor: ";
+        cin >> nume;
+        Cititor cititor(nume);
+
+        bool cititorAImprumutat = false;
+        char maiImprumuta = 'd';
+
+        while (maiImprumuta == 'd') {
+            int idCarte;
+            cout << "Introduceti ID-ul cartii pe care doriti sa o imprumutati: ";
+            while (!(cin >> idCarte) || idCarte <= 0) {
+                cin.clear();
+                cin.ignore(1000, '\n');
+                cout << "ID invalid! Incercati din nou.\n";
+                cout << "Introduceti ID-ul cartii pe care doriti sa o imprumutati: ";
+            }
+
+            CarteDisponibila* carte = biblioteca.cautaCarte(idCarte);
+            if (carte != nullptr) {
+                if (!carte->esteDisponibila()) {
+                    cout << "Cartea '" << carte->getTitlu() << "' nu este disponibila.\n";
+                } else {
+                    string dataImprumut, dataReturnare;
+                    cout << "Introduceti data imprumutului (DD-MM-YYYY): ";
+                    cin >> dataImprumut;
+
+                    // Validare data
+                    while (!biblioteca.validareData(dataImprumut)) {
+                        cout << "Data invalida! Introduceti o data corecta (DD-MM-YYYY): ";
+                        cin >> dataImprumut;
+                    }
+
+                    cout << "Introduceti data returnarii (DD-MM-YYYY): ";
+                    cin >> dataReturnare;
+
+                    // Validare data returnare
+                    while (!biblioteca.validareData(dataReturnare)) {
+                        cout << "Data returnarii invalida! Introduceti o data corecta (DD-MM-YYYY): ";
+                        cin >> dataReturnare;
+                    }
+
+                    cititor.imprumutaCarte(carte, dataImprumut, dataReturnare);
+                }
+            } else {
+                cout << "Cartea cu ID-ul " << idCarte << " nu a fost gasita!\n";
+            }
+
+            cout << "Doriti sa mai imprumutati si alta carte? (da/nu): ";
+            string raspuns;
+            cin >> raspuns;
+            maiImprumuta = (raspuns == "da") ? 'd' : 'n';
+        }
+
+        cititor.afiseazaImprumuturi();
+
+        cout << "\nDoriti sa introduceti un alt cititor? (da/nu): ";
+        string raspunsCititor;
+        cin >> raspunsCititor;
+        maiMultiCititori = (raspunsCititor == "da") ? 'd' : 'n';
+    }
+
+    return 0;
+}
