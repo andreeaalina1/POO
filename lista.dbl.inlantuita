@@ -1,0 +1,73 @@
+#include <iostream>
+using namespace std;
+struct Nod {
+    int val;
+    Nod* urm;
+    Nod* ant;
+};
+void adaugLaSf(Nod*& cap, Nod*& coada, int val) {
+    Nod* nodNou = new Nod;
+    nodNou->val = val;
+    nodNou->urm = nullptr;
+    nodNou->ant = coada;
+
+    if (coada == nullptr) {  
+        cap = coada = nodNou;
+    } else {
+        coada->urm = nodNou;
+        coada = nodNou;
+    }
+}
+void afisDeLaInceputLaSf(Nod* cap) {
+    Nod* temp = cap;
+    while (temp != nullptr) {
+        cout << temp->val << " ";
+        temp = temp->urm;
+    }
+    cout << endl;
+}
+void afisDeLaSfLaInceput(Nod* coada) {
+    Nod* temp = coada;
+    while (temp != nullptr) {
+        cout << temp->val << " ";
+        temp = temp->ant;
+    }
+    cout << endl;
+}
+void stergePrimul(Nod*& cap, Nod*& coada) {
+    if (cap == nullptr) {
+        cout << "lista deja nula" << endl;
+        return;
+    }
+    Nod* temp = cap;
+    cap = cap->urm;
+    if (cap != nullptr) {
+        cap->ant = nullptr;
+    } else {
+        coada = nullptr;  
+    }
+    delete temp;
+}
+void elibereaza(Nod*& cap) {
+    while (cap != nullptr) {
+        stergePrimul(cap, cap); 
+    }
+}
+int main() {
+    Nod* cap = nullptr;  
+    Nod* coada = nullptr;  
+    adaugLaSf(cap, coada, 10);
+    adaugLaSf(cap, coada, 20);
+    adaugLaSf(cap, coada, 30);
+    adaugLaSf(cap, coada, 40);
+
+    cout << "lista de la început la sf: ";
+    afisDeLaInceputLaSf(cap);
+    cout << "lista de la sf la început: ";
+    afisDeLaSfLaInceput(coada);
+    stergePrimul(cap, coada);
+    cout << "lista dupa stergerea nodului 1: ";
+    afisDeLaInceputLaSf(cap);
+    elibereaza(cap);
+    return 0;
+}
