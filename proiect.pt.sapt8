@@ -25,7 +25,7 @@ class CarteDisponibila : public Carte {
 private:
     int exemplareDisponibile;
 public:
-    CarteDisponibila(string t, string a, string g) : Carte(t, a, g), exemplareDisponibile(2) {} // 2 exemplare per carte
+    CarteDisponibila(string t, string a, string g) : Carte(t, a, g), exemplareDisponibile(2) {} 
     bool esteDisponibila() const { return exemplareDisponibile > 0; }
     void imprumuta() { if (exemplareDisponibile > 0) exemplareDisponibile--; }
     void returneaza() { exemplareDisponibile++; }
